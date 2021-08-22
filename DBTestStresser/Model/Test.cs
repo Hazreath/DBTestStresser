@@ -36,40 +36,13 @@ namespace DBTestStresser.Model {
                     () => ExecuteThread(this.Serie.DBMS,threadTimes, queriesTimes,outputs, query)
                 );
                 tasks.Add(t);
-                
             }
             try {
                 Task.WaitAll(tasks.ToArray());
                 chrono.Stop();
-                
-                // Mean query execution time
-                string debug = "COLLECTION SIZE: " + threadTimes.Count + " : {";
-                double threadMean = 0.0;
-                double queriesMean = 0.0;
-                double totalMean = 0.0;
 
-                foreach (long ms in threadTimes) {
-                    debug += ms + ',';
-                    threadMean += (double)ms;
-                }
-                foreach (double ms in queriesTimes) {
-                    debug += ms + ',';
-                    queriesMean += ms;
-                }
-                if (threadTimes.Count > 0) {
-                    threadMean = threadMean / threadTimes.Count;
-                    //queriesMean = queriesMean / queriesTimes.Count;
-                    //totalMean = chrono.ElapsedMilliseconds / queriesTimes.Count;
-                }
-                debug += "}";
-                //Console.WriteLine(debug);
-                GUI.Log("All jobs returned : ");
-                GUI.Log("average thread execution time : " + threadMean + " ms");
-                //GUI.Log("average query execution time : " + queriesMean + " ms");
-                //GUI.Log("total execution time / thread nb : " + totalMean + " ms");
-                GUI.Log("");
-                this.Serie.CSV += ConcurrencyAmount + ";" + threadMean + ";" + queriesMean + ";" 
-                    + totalMean + "\n";
+                TestSummary(threadTimes);
+                
             } catch (Exception e) {
                 chrono.Stop();
                 GUI.Log("Threads join failed : " + e.Message + "\n" + e.StackTrace);
@@ -80,6 +53,31 @@ namespace DBTestStresser.Model {
                     }
                 }
             }
+        }
+
+        public void TestSummary(ConcurrentBag<long> threadTimes) {
+            // Mean query execution time
+            string debug = "COLLECTION SIZE: " + threadTimes.Count + " : {";
+            double threadMean = 0.0;
+            long maxExecTime = 0L;
+            foreach (long ms in threadTimes) {
+                debug += ms + ',';
+                threadMean += (double) ms;
+                maxExecTime = (ms > maxExecTime) ? ms : maxExecTime;
+            }
+            
+            if (threadTimes.Count > 0) {
+                threadMean = threadMean / threadTimes.Count;
+            }
+            debug += "}";
+            
+            GUI.Log("All jobs returned : ");
+            GUI.Log("average thread execution time : " + threadMean + " ms");
+            GUI.Log("Max thread execution time : " + maxExecTime + " ms");
+            
+            GUI.Log("");
+            this.Serie.CSV += ConcurrencyAmount + ";" 
+                + threadMean + ";" + maxExecTime + ";\n";
         }
 
         public void ExecuteCassandraTest() {
@@ -119,34 +117,7 @@ namespace DBTestStresser.Model {
                 Task.WaitAll(tasks.ToArray());
                 chrono.Stop();
 
-                // Mean query execution time
-                string debug = "COLLECTION SIZE: " + threadTimes.Count + " : {";
-                double threadMean = 0.0;
-                double queriesMean = 0.0;
-                double totalMean = 0.0;
-
-                foreach (long ms in threadTimes) {
-                    debug += ms + ',';
-                    threadMean += (double) ms;
-                }
-                foreach (double ms in queriesTimes) {
-                    debug += ms + ',';
-                    queriesMean += ms;
-                }
-                if (threadTimes.Count > 0) {
-                    threadMean = threadMean / threadTimes.Count;
-                    //queriesMean = queriesMean / queriesTimes.Count;
-                    //totalMean = chrono.ElapsedMilliseconds / queriesTimes.Count;
-                }
-                debug += "}";
-                //Console.WriteLine(debug);
-                GUI.Log("All jobs returned : ");
-                GUI.Log("average thread execution time : " + threadMean + " ms");
-                //GUI.Log("average query execution time : " + queriesMean + " ms");
-                //GUI.Log("total execution time / thread nb : " + totalMean + " ms");
-                GUI.Log("");
-                this.Serie.CSV += ConcurrencyAmount + ";" + threadMean + ";" + queriesMean + ";"
-                    + totalMean + "\n";
+                TestSummary(threadTimes);
             } catch (Exception e) {
                 chrono.Stop();
                 GUI.Log("Threads join failed : " + e.Message + "\n" + e.StackTrace);

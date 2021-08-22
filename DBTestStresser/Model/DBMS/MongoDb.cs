@@ -79,8 +79,6 @@ namespace DBTestStresser.Model.DBMS {
             collection.InsertMany(toInsert);
         }
 
-
-
         public override void ReadQuery(DatabaseConnection cnx, string filter) {
             var client = cnx.MongoClient;
             var db = client.GetDatabase(DB_NAME);
@@ -118,7 +116,7 @@ namespace DBTestStresser.Model.DBMS {
                 var db = client.GetDatabase(DB_NAME);
                 Stopwatch s = new Stopwatch();
                 
-                var products = db.GetCollection<Product>(C_PRODUCTS).Find("{}").FirstOrDefault();
+                var brands = db.GetCollection<Product>(C_BRANDS).Find("{}").FirstOrDefault();
                 // Default mongo timeout : 30s
             } catch (Exception e) {
                 ret = "Connexion error : " + e.Message;

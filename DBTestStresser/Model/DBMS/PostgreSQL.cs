@@ -61,9 +61,72 @@ namespace DBTestStresser.Model.DBMS {
         }
 
         public override void PopulateDB() {
-            GUI.Log("Building insert queries...");
-            var cnx = new NpgsqlConnection(BuildConnectionString());
-            // TODO pk c parti
+            var cnx = GetConnection();
+
+            string wipe = "DELETE FROM orders; DELETE FROM products; DELETE FROM customers;" +
+                "DELETE FROM brands;";
+            string seq_reset = "ALTER SEQUENCE brands_id_seq RESTART;" +
+                "ALTER SEQUENCE products_id_seq RESTART;" +
+                "ALTER SEQUENCE customers_id_seq RESTART;" +
+                "ALTER SEQUENCE orders_id_seq RESTART;";
+            //+
+            //"TRUNCATE TABLE orders; TRUNCATE TABLE customers; TRUNCATE TABLE customers;" +
+            //"TRUNCATE TABLE orders";
+            ;
+            //string resetSequences = "ALTER SEQUENCE products_id_seq RESTART WITH 1;" +
+            //                   "ALTER SEQUENCE brands_id_seq RESTART WITH 1;" +
+            //                   "ALTER SEQUENCE customers_id_seq RESTART WITH 1; ";
+            GUI.Log("Connection to DB...");
+            cnx.Open();
+            GUI.Log("Connected !");
+            GUI.Log("Wiping existing data...");
+            WriteQuery(cnx, wipe);
+            
+
+            GUI.Log("Resetting sequences...");
+            WriteQuery(cnx, seq_reset);
+            //string reset = "ALTER TABLE brands AUTO_INCREMENT = 1;" +
+            //    "ALTER TABLE products AUTO_INCREMENT = 1;" +
+            //    "ALTER TABLE customers AUTO_INCREMENT = 1; ";
+            //WriteQuery(cnx, reset);
+
+            // Brands
+            GUI.Log("BRANDS - Generating query");
+            List<string> types = new List<string> { "string" };
+            string insert = "INSERT INTO brands(name) ";
+            insert += RandomDB.BuildInsertIntoValues(types, N_BRANDS) + ";";
+            GUI.Log("BRANDS - Executing query");
+            WriteQuery(cnx, insert);
+
+            // Customers
+            GUI.Log("CUSTOMERS - Generating query");
+            types = new List<string> { "string", "string", "string", "string" };
+            insert = "INSERT INTO customers(surname,name,city,email)";
+            insert += RandomDB.BuildInsertIntoValues(types, N_CUSTOMERS) + ";";
+            GUI.Log("CUSTOMERS - Executing query");
+            WriteQuery(cnx, insert);
+
+            // Products
+            GUI.Log("PRODUCTS - Generating query");
+            types = new List<string> { "string", "double", "int", "int" };
+            var intMins = new int[] { 100, 1, 1 };
+            var intMaxs = new int[] { 400, N_BRANDS, 100 };
+            insert = "INSERT INTO products(name,price,brand_id,stock)";
+            insert += RandomDB.BuildInsertIntoValues(types, N_PRODUCTS, intMins, intMaxs) + ";";
+            GUI.Log("PRODUCTS - Executing query");
+            WriteQuery(cnx, insert);
+
+            // Orders
+            GUI.Log("ORDERS - Generating query");
+            types = new List<string> { "string", "int", "int" };
+            intMins = new int[] { 1, 1 };
+            intMaxs = new int[] { N_CUSTOMERS, N_PRODUCTS };
+            insert = "INSERT INTO orders(date,customer_id,product_id)";
+            insert += RandomDB.BuildInsertIntoValues(types, N_ORDERS, intMins, intMaxs) + ";";
+            GUI.Log("ORDERS - Executing query");
+            WriteQuery(cnx, insert);
+
+            GUI.Log("===== END ======");
             cnx.Close();
         }
 

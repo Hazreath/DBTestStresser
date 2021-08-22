@@ -27,7 +27,8 @@ namespace DBTestStresser.Model.DBMS {
         }
 
         public override void PopulateDB() {
-            var sess = (ISession)GetConnection().GetConnectionInstance();
+            var driver = (IDriver)GetConnection().GetConnectionInstance();
+            var sess = driver.Session();
             
 
             // Delete all nodes & relationships

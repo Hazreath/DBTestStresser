@@ -20,9 +20,10 @@ namespace DBTestStresser.Model {
         private string DIR_CSV_URL = @".\CSV";
 
         public TestSeries() {
-            ConcurrencyAmounts = new int[] {1, 5, 10, 50, 100, 300, 500, 1000, 5000, 10000 };//, 50000 };//, 100000 }; //500000, 1000000};
-            CSV = "sep=;\nConcurrency amount; Average thread execution time (ms); " +
-                "Average query execution time (ms); Total threads executions times / thread number (ms)\n";
+            //ConcurrencyAmounts = new int[] {1, 5, 10, 50, 100, 300, 500, 1000, 5000, 10000, 50000 };//, 50000 };//, 100000 }; //500000, 1000000};
+            ConcurrencyAmounts = new int[] {10, 100, 500, 1000, 5000, 10000, 50000, 100000 };//, 50000 };//, 100000 }; //500000, 1000000};
+            CSV = "sep=;\nConcurrency amount; Average thread execution time (ms); Max thread execution time (ms)\n";
+                //"Average query execution time (ms); Total threads executions times / thread number (ms)\n";
         }
         public void Execute() {
             Test t;

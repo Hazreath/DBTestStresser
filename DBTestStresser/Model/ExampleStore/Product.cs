@@ -17,6 +17,7 @@ namespace DBTestStresser.Model {
         public double Price { get; set; }
 
         public int Stock { get; set; }
+        
 
         public static Product GenerateRandom(int maxBrandId, int id=-1) {
             Product p = new Product();
